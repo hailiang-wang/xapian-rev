@@ -1,0 +1,403 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+
+<ul id="index">
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#EXPORT">EXPORT</a></li>
+    </ul>
+  </li>
+  <li><a href="#db">:db</a></li>
+  <li><a href="#ops">:ops</a></li>
+  <li><a href="#qpflags">:qpflags</a></li>
+  <li><a href="#qpstem">:qpstem</a></li>
+  <li><a href="#enq_order">:enq_order</a></li>
+  <li><a href="#standard">:standard</a></li>
+  <li><a href="#Version-functions">Version functions</a></li>
+  <li><a href="#Numeric-encoding-functions">Numeric encoding functions</a></li>
+  <li><a href="#TODO">TODO</a></li>
+  <li><a href="#CREDITS">CREDITS</a></li>
+  <li><a href="#AUTHOR">AUTHOR</a></li>
+  <li><a href="#LICENSE">LICENSE</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<p>Xapian - Perl frontend to the Xapian C++ search library.</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>  use Xapian;
+
+  my $db = Xapian::Database-&gt;new( &#39;[DATABASE DIR]&#39; );
+  my $enq = $db-&gt;enquire( &#39;[QUERY TERM]&#39; );
+
+  printf &quot;Running query &#39;%s&#39;\n&quot;, $enq-&gt;get_query()-&gt;get_description();
+
+  my @matches = $enq-&gt;matches(0, 10);
+
+  print scalar(@matches) . &quot; results found\n&quot;;
+
+  foreach my $match ( @matches ) {
+    my $doc = $match-&gt;get_document();
+    printf &quot;ID %d %d%% [ %s ]\n&quot;, $match-&gt;get_docid(), $match-&gt;get_percent(), $doc-&gt;get_data();
+  }</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>This module wraps most methods of most Xapian classes. The missing classes and methods should be added in the future. It also provides a simplified, more &#39;perlish&#39; interface to some common operations, as demonstrated above.</p>
+
+<p>There are some gaps in the POD documentation for wrapped classes, but you can read the Xapian C++ API documentation at <a href="https://xapian.org/docs/apidoc/html/annotated.html">https://xapian.org/docs/apidoc/html/annotated.html</a> for details of these. Alternatively, take a look at the code in the examples and tests.</p>
+
+<p>If you want to use Xapian and the threads module together, make sure you&#39;re using Xapian &gt;= 1.0.4.0 and Perl &gt;= 5.8.7. As of 1.0.4.0, Xapian uses CLONE_SKIP to make sure that the perl wrapper objects aren&#39;t copied to new threads - without this the underlying C++ objects can get destroyed more than once.</p>
+
+<p>If you encounter problems, or have any comments, suggestions, patches, etc please email the Xapian-discuss mailing list (details of which can be found at <a href="https://xapian.org/lists">https://xapian.org/lists</a>).</p>
+
+<h2 id="EXPORT">EXPORT</h2>
+
+<p>None by default.</p>
+
+<h1 id="db">:db</h1>
+
+<dl>
+
+<dt id="DB_OPEN">DB_OPEN</dt>
+<dd>
+
+<p>Open a database, fail if database doesn&#39;t exist.</p>
+
+</dd>
+<dt id="DB_CREATE">DB_CREATE</dt>
+<dd>
+
+<p>Create a new database, fail if database exists.</p>
+
+</dd>
+<dt id="DB_CREATE_OR_OPEN">DB_CREATE_OR_OPEN</dt>
+<dd>
+
+<p>Open an existing database, without destroying data, or create a new database if one doesn&#39;t already exist.</p>
+
+</dd>
+<dt id="DB_CREATE_OR_OVERWRITE">DB_CREATE_OR_OVERWRITE</dt>
+<dd>
+
+<p>Overwrite database if it exists.</p>
+
+</dd>
+</dl>
+
+<h1 id="ops">:ops</h1>
+
+<dl>
+
+<dt id="OP_AND">OP_AND</dt>
+<dd>
+
+<p>Match if both subqueries are satisfied.</p>
+
+</dd>
+<dt id="OP_OR">OP_OR</dt>
+<dd>
+
+<p>Match if either subquery is satisfied.</p>
+
+</dd>
+<dt id="OP_AND_NOT">OP_AND_NOT</dt>
+<dd>
+
+<p>Match if left but not right subquery is satisfied.</p>
+
+</dd>
+<dt id="OP_XOR">OP_XOR</dt>
+<dd>
+
+<p>Match if left or right, but not both queries are satisfied.</p>
+
+</dd>
+<dt id="OP_AND_MAYBE">OP_AND_MAYBE</dt>
+<dd>
+
+<p>Match if left is satisfied, but use weights from both.</p>
+
+</dd>
+<dt id="OP_FILTER">OP_FILTER</dt>
+<dd>
+
+<p>Like OP_AND, but only weight using the left query.</p>
+
+</dd>
+<dt id="OP_NEAR">OP_NEAR</dt>
+<dd>
+
+<p>Match if the words are near each other. The window should be specified, as a parameter to <code>Xapian::Query::Query</code>, but it defaults to the number of terms in the list.</p>
+
+</dd>
+<dt id="OP_PHRASE">OP_PHRASE</dt>
+<dd>
+
+<p>Match as a phrase (All words in order).</p>
+
+</dd>
+<dt id="OP_ELITE_SET">OP_ELITE_SET</dt>
+<dd>
+
+<p>Select an elite set from the subqueries, and perform a query with these combined as an OR query.</p>
+
+</dd>
+<dt id="OP_VALUE_RANGE">OP_VALUE_RANGE</dt>
+<dd>
+
+<p>Filter by a range test on a document value.</p>
+
+</dd>
+</dl>
+
+<h1 id="qpflags">:qpflags</h1>
+
+<dl>
+
+<dt id="FLAG_DEFAULT">FLAG_DEFAULT</dt>
+<dd>
+
+<p>This gives the QueryParser default flag settings, allowing you to easily add flags to the default ones.</p>
+
+</dd>
+<dt id="FLAG_BOOLEAN">FLAG_BOOLEAN</dt>
+<dd>
+
+<p>Support AND, OR, etc and bracketted subexpressions.</p>
+
+</dd>
+<dt id="FLAG_LOVEHATE">FLAG_LOVEHATE</dt>
+<dd>
+
+<p>Support + and -.</p>
+
+</dd>
+<dt id="FLAG_PHRASE">FLAG_PHRASE</dt>
+<dd>
+
+<p>Support quoted phrases.</p>
+
+</dd>
+<dt id="FLAG_BOOLEAN_ANY_CASE">FLAG_BOOLEAN_ANY_CASE</dt>
+<dd>
+
+<p>Support AND, OR, etc even if they aren&#39;t in ALLCAPS.</p>
+
+</dd>
+<dt id="FLAG_WILDCARD">FLAG_WILDCARD</dt>
+<dd>
+
+<p>Support right truncation (e.g. Xap*).</p>
+
+</dd>
+<dt id="FLAG_PURE_NOT">FLAG_PURE_NOT</dt>
+<dd>
+
+<p>Allow queries such as &#39;NOT apples&#39;.</p>
+
+<p>These require the use of a list of all documents in the database which is potentially expensive, so this feature isn&#39;t enabled by default.</p>
+
+</dd>
+<dt id="FLAG_PARTIAL">FLAG_PARTIAL</dt>
+<dd>
+
+<p>Enable partial matching.</p>
+
+<p>Partial matching causes the parser to treat the query as a &quot;partially entered&quot; search. This will automatically treat the final word as a wildcarded match, unless it is followed by whitespace, to produce more stable results from interactive searches.</p>
+
+</dd>
+<dt id="FLAG_SPELLING_CORRECTION">FLAG_SPELLING_CORRECTION</dt>
+<dd>
+
+</dd>
+<dt id="FLAG_SYNONYM">FLAG_SYNONYM</dt>
+<dd>
+
+</dd>
+<dt id="FLAG_AUTO_SYNONYMS">FLAG_AUTO_SYNONYMS</dt>
+<dd>
+
+</dd>
+<dt id="FLAG_AUTO_MULTIWORD_SYNONYMS">FLAG_AUTO_MULTIWORD_SYNONYMS</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h1 id="qpstem">:qpstem</h1>
+
+<dl>
+
+<dt id="STEM_ALL">STEM_ALL</dt>
+<dd>
+
+<p>Stem all terms.</p>
+
+</dd>
+<dt id="STEM_ALL_Z">STEM_ALL_Z</dt>
+<dd>
+
+<p>Stem all terms and add a &quot;Z&quot; prefix.</p>
+
+</dd>
+<dt id="STEM_NONE">STEM_NONE</dt>
+<dd>
+
+<p>Don&#39;t stem any terms.</p>
+
+</dd>
+<dt id="STEM_SOME">STEM_SOME</dt>
+<dd>
+
+<p>Stem some terms, in a manner compatible with Omega (capitalised words and those in phrases aren&#39;t stemmed).</p>
+
+</dd>
+<dt id="STEM_SOME_FULL_POS">STEM_SOME_FULL_POS</dt>
+<dd>
+
+<p>Like STEM_SOME but also store term positions for stemmed terms.</p>
+
+</dd>
+</dl>
+
+<h1 id="enq_order">:enq_order</h1>
+
+<dl>
+
+<dt id="ENQ_ASCENDING">ENQ_ASCENDING</dt>
+<dd>
+
+<p>docids sort in ascending order (default)</p>
+
+</dd>
+<dt id="ENQ_DESCENDING">ENQ_DESCENDING</dt>
+<dd>
+
+<p>docids sort in descending order</p>
+
+</dd>
+<dt id="ENQ_DONT_CARE">ENQ_DONT_CARE</dt>
+<dd>
+
+<p>docids sort in whatever order is most efficient for the backend</p>
+
+</dd>
+</dl>
+
+<h1 id="standard">:standard</h1>
+
+<p>Standard is db + ops + qpflags + qpstem</p>
+
+<h1 id="Version-functions">Version functions</h1>
+
+<dl>
+
+<dt id="major_version">major_version</dt>
+<dd>
+
+<p>Returns the major version of the Xapian C++ library being used. E.g. for Xapian 1.0.9 this would return 1.</p>
+
+</dd>
+<dt id="minor_version">minor_version</dt>
+<dd>
+
+<p>Returns the minor version of the Xapian C++ library being used. E.g. for Xapian 1.0.9 this would return 0.</p>
+
+</dd>
+<dt id="revision">revision</dt>
+<dd>
+
+<p>Returns the revision of the Xapian C++ library being used. E.g. for Xapian 1.0.9 this would return 9. In a stable release series, Xapian libraries with the same minor and major versions are usually ABI compatible, so this often won&#39;t match the third component of $Xapian::VERSION (which is the version of the Xapian wrappers).</p>
+
+</dd>
+</dl>
+
+<h1 id="Numeric-encoding-functions">Numeric encoding functions</h1>
+
+<dl>
+
+<dt id="sortable_serialise-NUMBER">sortable_serialise NUMBER</dt>
+<dd>
+
+<p>Convert a floating point number to a string, preserving sort order.</p>
+
+<p>This method converts a floating point number to a string, suitable for using as a value for numeric range restriction, or for use as a sort key.</p>
+
+<p>The conversion is platform independent.</p>
+
+<p>The conversion attempts to ensure that, for any pair of values supplied to the conversion algorithm, the result of comparing the original values (with a numeric comparison operator) will be the same as the result of comparing the resulting values (with a string comparison operator). On platforms which represent doubles with the precisions specified by IEEE_754, this will be the case: if the representation of doubles is more precise, it is possible that two very close doubles will be mapped to the same string, so will compare equal.</p>
+
+<p>Note also that both zero and -zero will be converted to the same representation: since these compare equal, this satisfies the comparison constraint, but it&#39;s worth knowing this if you wish to use the encoding in some situation where this distinction matters.</p>
+
+<p>Handling of NaN isn&#39;t (currently) guaranteed to be sensible.</p>
+
+</dd>
+<dt id="sortable_unserialise-SERIALISED_NUMBER">sortable_unserialise SERIALISED_NUMBER</dt>
+<dd>
+
+<p>Convert a string encoded using sortable_serialise back to a floating point number.</p>
+
+<p>This expects the input to be a string produced by sortable_serialise(). If the input is not such a string, the value returned is undefined (but no error will be thrown).</p>
+
+<p>The result of the conversion will be exactly the value which was supplied to sortable_serialise() when making the string on platforms which represent doubles with the precisions specified by IEEE_754, but may be a different (nearby) value on other platforms.</p>
+
+</dd>
+</dl>
+
+<h1 id="TODO">TODO</h1>
+
+<dl>
+
+<dt id="Documentation">Documentation</dt>
+<dd>
+
+<p>Add POD documentation for all classes, where possible just adapted from Xapian docs.</p>
+
+</dd>
+<dt id="Unwrapped-classes">Unwrapped classes</dt>
+<dd>
+
+<p>The following Xapian classes are not yet wrapped: ErrorHandler, user-defined Weight subclasses.</p>
+
+</dd>
+</dl>
+
+<h1 id="CREDITS">CREDITS</h1>
+
+<p>These SWIG-generated Perl bindings were originally implemented by Kosei Moriyama in GSoC 2009, and made their debut in the 1.2.4 release.</p>
+
+<p>They take a lot of inspiration and some code from Search::Xapian, a set of hand-written XS bindings, originally written by Alex Bowley, and later maintained by Olly Betts.</p>
+
+<p>Search::Xapian owed thanks to Tye McQueen &lt;tye@metronet.com&gt; for explaining the finer points of how best to write XS frontends to C++ libraries, and James Aylett &lt;james@tartarus.org&gt; for clarifying the less obvious aspects of the Xapian API. Patches for wrapping missing classes and other things were contributed by Olly Betts, Tim Brody, Marcus Ramberg, Peter Karman, Benjamin Smith, Rusty Conover, Frank Lichtenheld, Henry Combrinck, Jess Robinson, David F. Skoll, Dave O&#39;Neill, Andreas Marienborg, Adam Sjøgren, Dmitry Karasik, and Val Rosca.</p>
+
+<h1 id="AUTHOR">AUTHOR</h1>
+
+<p>Please report any bugs/suggestions to &lt;xapian-discuss@lists.xapian.org&gt; or use the Xapian bug tracker <a href="https://xapian.org/bugs">https://xapian.org/bugs</a>. Please do NOT use the CPAN bug tracker or mail contributors individually.</p>
+
+<h1 id="LICENSE">LICENSE</h1>
+
+<p>This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.</p>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><a href="/Xapian/BM25Weight.html">Xapian::BM25Weight</a>, <a href="/Xapian/BoolWeight.html">Xapian::BoolWeight</a>, <a href="/Xapian/Database.html">Xapian::Database</a>, <a href="/Xapian/Document.html">Xapian::Document</a>, <a href="/Xapian/Enquire.html">Xapian::Enquire</a>, <a href="/Xapian/MultiValueSorter.html">Xapian::MultiValueSorter</a>, <a href="/Xapian/PositionIterator.html">Xapian::PositionIterator</a>, <a href="/Xapian/PostingIterator.html">Xapian::PostingIterator</a>, <a href="/Xapian/QueryParser.html">Xapian::QueryParser</a>, <a href="/Xapian/Stem.html">Xapian::Stem</a>, <a href="/Xapian/TermGenerator.html">Xapian::TermGenerator</a>, <a href="/Xapian/TermIterator.html">Xapian::TermIterator</a>, <a href="/Xapian/TradWeight.html">Xapian::TradWeight</a>, <a href="/Xapian/ValueIterator.html">Xapian::ValueIterator</a>, <a href="/Xapian/Weight.html">Xapian::Weight</a>, <a href="/Xapian/WritableDatabase.html">Xapian::WritableDatabase</a>, and <a href="https://xapian.org/">https://xapian.org/</a>.</p>
+
+
+</body>
+
+</html>
+
+

@@ -13,5 +13,5 @@ cd $baseDir/..
 docker run -it \
     --rm -v $PWD:/workspace \
     --name ubuntu-dev \
-    samurais/ubuntu-dev:1.1.0 \
+    samurais/ubuntu-dev:1.1.1 \
     zsh
